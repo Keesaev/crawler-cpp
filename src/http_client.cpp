@@ -12,20 +12,27 @@ http_client::http_client(boost::asio::io_context &io_context)
     : m_io_context(io_context) {}
 
 std::string http_client::page(std::string const &link) {
+  // Separate host and target
+  std::string host, target;
+  const auto separator = link.find('/');
+  if (separator == std::string::npos) {
+    host = link;
+    target = "/";
+  } else {
+    host = link.substr(0, separator);
+    target = link.substr(separator, link.length() - separator);
+  }
+
   try {
     asio::ip::tcp::resolver resolver(m_io_context);
     beast::tcp_stream stream(m_io_context);
 
-    // TEMP
-    std::string test_link = "crawler-test.com";
-
-    // Resolve 80 port
-    auto const results = resolver.resolve(test_link, "80");
-    stream.connect(results);
+    // Resolve http port
+    stream.connect(resolver.resolve(host, "80"));
 
     // Set up an HTTP GET request message
     http::request<http::string_body> req{http::verb::get, "/", 11};
-    req.set(http::field::host, test_link);
+    req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
     // Send the HTTP request to the remote host
@@ -53,6 +60,7 @@ std::string http_client::page(std::string const &link) {
     if (ec && ec != beast::errc::not_connected)
       std::cout << ec.message();
     // throw beast::system_error{ec};
+
   } catch (std::exception const &e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }

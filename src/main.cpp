@@ -1,5 +1,3 @@
-
-
 // ASAN env
 #ifndef _WIN32
 extern "C" const char *__asan_default_options() {
@@ -11,11 +9,11 @@ extern "C" const char *__asan_default_options() {
 #include "http_client.h"             // TEMP
 #include <boost/asio/io_context.hpp> // TEMP
 
-int main() {
+int main(int argc, char *argv[]) {
 
   boost::asio::io_context io_context;
   http_client client(io_context);
-  client.page("en.wikipedia.org/wiki/Web_crawler");
+  client.page("crawler-test.com/");
 
   // crawler c("en.wikipedia.org/wiki/Web_crawler", 2);
   // c.run();

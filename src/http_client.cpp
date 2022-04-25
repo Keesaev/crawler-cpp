@@ -2,7 +2,6 @@
 
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
-#include <iostream> // TEMP
 
 namespace beast = boost::beast;
 namespace http = boost::beast::http;
@@ -23,8 +22,6 @@ std::string http_client::page(std::string const &link) {
     target = link.substr(separator, link.length() - separator);
   }
 
-  std::cout << "host " << host << " target " << target << std::endl;
-
   try {
     asio::ip::tcp::resolver resolver(m_io_context);
     beast::tcp_stream stream(m_io_context);
@@ -41,14 +38,12 @@ std::string http_client::page(std::string const &link) {
 
     http::read(stream, buffer, res);
 
-    // Gracefully close the socket
     beast::error_code ec;
     stream.socket().shutdown(asio::ip::tcp::socket::shutdown_both, ec);
 
     return res.body();
-
   } catch (std::exception const &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+    // TODO
   }
   return "";
 }

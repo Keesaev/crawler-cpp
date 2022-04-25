@@ -5,5 +5,5 @@
 class parser {
 public:
   parser();
-  std::vector<std::string> links(std::string const &root);
+  std::vector<std::string> links(std::string &&page);
 };

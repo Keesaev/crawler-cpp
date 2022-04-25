@@ -39,18 +39,20 @@ add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 # asan
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
     -fsanitize=address
+    -static-libasan
     -fsanitize=leak
     -fsanitize=undefined
     -fno-sanitize=vptr
     -fno-omit-frame-pointer
 )
 
-target_link_options(${PROJECT_NAME} PRIVATE
-	-fsanitize=address
-	-fsanitize=leak
-	-fsanitize=undefined
-	-fno-sanitize=vptr
-	-fno-omit-frame-pointer
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+    -fsanitize=address
+    -static-libasan
+    -fsanitize=leak
+    -fsanitize=undefined
+    -fno-sanitize=vptr
+    -fno-omit-frame-pointer
 )
 
 if (Boost_FOUND)

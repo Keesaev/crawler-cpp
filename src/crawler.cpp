@@ -13,9 +13,8 @@ void crawler::crawl(std::string root, int depth) {
     return;
 
   http_client client(m_io_context);
-  const auto page{client.page(root)};
 
-  for (auto link : m_parser.links(page)) {
+  for (auto link : m_parser.links(client.page(root))) {
     std::cout << link << std::endl;
     boost::asio::post(m_io_context, std::bind(&crawler::crawl, this,
                                               std::move(link), depth + 1));

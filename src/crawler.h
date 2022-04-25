@@ -1,6 +1,6 @@
 #pragma once
 #include "http_client.h"
-#include "parser.h"
+#include "html_parser.h"
 
 #include <boost/asio/io_context.hpp>
 
@@ -14,7 +14,6 @@ private:
 
 private:
   boost::asio::io_context m_io_context;
-  parser m_parser;
 
   const std::string m_root;
   const int m_max_depth;

@@ -23,12 +23,14 @@ std::string http_client::page(std::string const &link) {
     target = link.substr(separator, link.length() - separator);
   }
 
+  std::cout << "host " << host << " target " << target << std::endl;
+
   try {
     asio::ip::tcp::resolver resolver(m_io_context);
     beast::tcp_stream stream(m_io_context);
     stream.connect(resolver.resolve(host, "80"));
 
-    http::request<http::string_body> req{http::verb::get, "/", 11};
+    http::request<http::string_body> req{http::verb::get, target, 11};
     req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 

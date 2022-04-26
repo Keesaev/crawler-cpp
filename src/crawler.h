@@ -13,9 +13,11 @@ public:
   ~crawler();
 
   void run();
+  void print_tree() const;
 
 private:
   void crawl(node *root_node, int depth = 0);
+  void _print_tree(const node *const root_node, int depth = 0) const;
 
 private:
   boost::asio::io_context m_io_context;

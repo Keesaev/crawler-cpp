@@ -8,7 +8,7 @@ public:
   ~node();
 
   void add_child(node *child);
-  std::list<node *> *const children();
+  const std::list<node *> *const children() const;
 
   bool has_children() const;
   std::string link() const;

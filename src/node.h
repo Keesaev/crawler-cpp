@@ -1,6 +1,6 @@
 #pragma once
-#include <list>
 #include <string>
+#include <vector>
 
 class node {
 public:
@@ -8,12 +8,12 @@ public:
   ~node();
 
   void add_child(node *child);
-  const std::list<node *> *const children() const;
+  const std::vector<node *> *const children() const;
 
   bool has_children() const;
   std::string link() const;
 
 private:
   const std::string m_link;
-  std::list<node *> m_children;
+  std::vector<node *> m_children;
 };

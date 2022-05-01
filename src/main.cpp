@@ -20,9 +20,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  crawler c(link, 2);
+  crawler c(link, 3);
   c.run();
   // c.print_tree();
+
+  std::cout << std::flush;
 
   return 0;
 }

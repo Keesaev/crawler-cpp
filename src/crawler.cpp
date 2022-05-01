@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 
+#include <algorithm>
 #include <iostream>
 
 crawler::crawler(std::string const &root_path, int max_depth)
@@ -10,39 +11,43 @@ crawler::crawler(std::string const &root_path, int max_depth)
       m_max_depth(max_depth) {}
 
 void crawler::run() {
-  m_visited_nodes.insert({m_root_node->link(), m_root_node.get()});
+  m_visited_nodes.insert(m_root_node.get());
 
   std::make_shared<http_client>(m_io_context)
       ->get_page_async(m_root_node->link(),
                        std::bind(&crawler::on_page_received, this,
-                                 m_root_node->link(), std::placeholders::_1,
+                                 m_root_node.get(), 1, std::placeholders::_1,
                                  std::placeholders::_2));
   m_io_context.run();
 }
 
-// TODO add depth
-// TODO pass node ptr and bind it
-void crawler::on_page_received(std::string link, std::string page,
+void crawler::on_page_received(node *root_node, int depth, std::string page,
                                boost::beast::error_code ec) {
   if (ec) {
-    // TODO add 'error' member to node class and dump ec
+    std::cerr << depth << ": " << root_node->link() << ": " << ec.message()
+              << '\n';
+    root_node->error_code(ec);
     return;
   }
 
-  std::cout << link << std::endl;
-  auto root_node = m_visited_nodes.find(link)->second;
-  html_parser html_parser(root_node->link());
+  std::cout << depth << ": " << root_node->link() << '\n';
 
-  for (auto link : html_parser.links(std::move(page))) {
-    if (m_visited_nodes.find(link) == m_visited_nodes.end()) {
-      node *n = new node(link);
-      root_node->add_child(n);
-      m_visited_nodes.insert({link, n});
+  for (auto link : html_parser(root_node->link()).links(std::move(page))) {
+    if (std::find_if(m_visited_nodes.begin(), m_visited_nodes.end(),
+                     [&link](node *n) { return link == n->link(); }) ==
+        m_visited_nodes.end()) {
+      node *child_node = new node(link);
+      root_node->add_child(child_node);
+      m_visited_nodes.insert(child_node);
 
-      std::make_shared<http_client>(m_io_context)
-          ->get_page_async(link, std::bind(&crawler::on_page_received, this,
-                                           link, std::placeholders::_1,
-                                           std::placeholders::_2));
+      // Parse next page if max depth not reached
+      if (depth + 1 < m_max_depth)
+        std::make_shared<http_client>(m_io_context)
+            ->get_page_async(child_node->link(),
+                             std::bind(&crawler::on_page_received, this,
+                                       child_node, depth + 1,
+                                       std::placeholders::_1,
+                                       std::placeholders::_2));
     }
   }
 }
@@ -54,9 +59,14 @@ void crawler::_print_tree(const node *const root_node, int depth) const {
   // "pretty" tab
   for (int i = 0; i < depth; i++)
     std::cout << '-';
-  std::cout << root_node->link() << '\n';
+
+  if (root_node->error_code())
+    std::cout << depth << " " << root_node->link() << ": "
+              << root_node->error_code() << '\n';
+  else
+    std::cout << depth << " " << root_node->link() << '\n';
 
   for (const auto child : *root_node->children()) {
-    _print_tree(child, depth + 1);
+    _print_tree(child, depth);
   }
 }

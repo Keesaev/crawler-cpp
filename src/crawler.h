@@ -5,6 +5,7 @@
 
 #include <boost/asio/io_context.hpp>
 #include <boost/beast/core/error.hpp>
+#include <mutex>
 
 #include <unordered_set>
 
@@ -22,9 +23,9 @@ private:
 
 private:
   boost::asio::io_context m_io_context;
-  // TODO change to unordered_set and add operator== to node class
-  std::unordered_set<node *> m_visited_nodes;
+  std::mutex m_visited_nodes_mtx;
 
+  std::unordered_set<node *> m_visited_nodes;
   std::unique_ptr<node> m_root_node;
   const int m_max_depth;
 };

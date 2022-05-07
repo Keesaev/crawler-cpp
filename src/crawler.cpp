@@ -19,7 +19,13 @@ void crawler::run() {
                                  m_root_node.get(), 1, std::placeholders::_1,
                                  std::placeholders::_2));
 
-  m_io_context.run();
+  std::thread thread1([ctx = &m_io_context]() { ctx->run(); });
+  std::thread thread2([ctx = &m_io_context]() { ctx->run(); });
+  std::thread thread3([ctx = &m_io_context]() { ctx->run(); });
+
+  thread1.join();
+  thread2.join();
+  thread3.join();
 }
 
 void crawler::on_page_received(node *root_node, int depth, std::string page,
@@ -40,6 +46,8 @@ void crawler::on_page_received(node *root_node, int depth, std::string page,
     if (std::find_if(m_visited_nodes.begin(), m_visited_nodes.end(),
                      [&link](node *n) { return link == n->link(); }) ==
         m_visited_nodes.end()) {
+      std::scoped_lock lc(m_visited_nodes_mtx);
+
       node *child_node = new node(link);
       root_node->add_child(child_node);
       m_visited_nodes.insert(child_node);

@@ -14,8 +14,15 @@ std::vector<std::string> html_parser::links(std::string &&page) {
     opening_tag += 6; // += sizeos(href=")
     auto closing_tag = page.find("\"", opening_tag);
     if (closing_tag != std::string::npos) {
-      std::string link = page.substr(opening_tag, closing_tag - opening_tag);
-      // Construct full link
+      auto link = page.substr(opening_tag, closing_tag - opening_tag);
+
+      // Cut off http(s):// part
+      if (link.find("https://") != std::string::npos) {
+        link = link.substr(8, link.length() - 8);
+      } else if (link.find("http://") != std::string::npos) {
+        link = link.substr(7, link.length() - 7);
+      }
+
       links.emplace_back(link.front() == '/' ? m_root + link : std::move(link));
     } else {
       break;

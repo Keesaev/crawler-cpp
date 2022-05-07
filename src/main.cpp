@@ -1,26 +1,23 @@
 #include "crawler.h"
 #include <iostream>
 
+// TODO use boost::program_options
+
 int main(int argc, char *argv[]) {
   std::string link;
+  int depth = 1e9; // infinite depth
+
   if (argc < 2) {
     std::cout << "Usage: ./crawler-cpp <link>";
     link = "crawler-test.com";
   } else {
     link = argv[1];
 
-    // temp solution:
-    auto http_prefix = link.find("http://");
-    if (http_prefix != std::string::npos) {
-      link = link.substr(7, link.length() - 7);
-    }
-    auto https_prefix = link.find("https://");
-    if (https_prefix != std::string::npos) {
-      link = link.substr(8, link.length() - 8);
-    }
+    if (argc == 3)
+      depth = std::atoi(argv[2]);
   }
 
-  crawler c(link, 3);
+  crawler c(link, depth);
   c.run();
   // c.print_tree();
 

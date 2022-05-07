@@ -11,7 +11,7 @@ class http_client : public std::enable_shared_from_this<http_client> {
 public:
   http_client(boost::asio::io_context &io_context);
   void get_page_async(
-      std::string const &link,
+      std::string link,
       std::function<void(std::string page, boost::beast::error_code ec)>
           callback);
 

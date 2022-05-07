@@ -13,12 +13,10 @@ http_client::http_client(boost::asio::io_context &io_context)
     : m_io_context(io_context), m_resolver(io_context), m_stream(io_context) {}
 
 void http_client::get_page_async(
-    std::string const &link,
+    std::string link,
     std::function<void(std::string page, beast::error_code error)> callback) {
 
   _callback = callback;
-
-  // TODO cut off https:// part
 
   std::string host;
   // Separate host and target

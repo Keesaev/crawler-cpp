@@ -23,6 +23,14 @@ find_package(Boost REQUIRED COMPONENTS
     system
 )
 
+find_library(ASAN_PATH asan)
+
+if(ASAN_PATH)
+  message("asan found at " ${ASAN_PATH})
+else()
+  message("asan not found")
+endif()
+
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})
     include_directories(${BOOST_INCLUDE_DIRS})
@@ -36,10 +44,12 @@ endif()
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
+target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} ${ASAN_PATH})
+
 # asan
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
     -fsanitize=address
-    -static-libasan
+    #-static-libasan
     -fsanitize=leak
     -fsanitize=undefined
     -fno-sanitize=vptr
@@ -48,15 +58,11 @@ target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
 
 target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
     -fsanitize=address
-    -static-libasan
+    #-static-libasan
     -fsanitize=leak
     -fsanitize=undefined
     -fno-sanitize=vptr
     -fno-omit-frame-pointer
 )
-
-if (Boost_FOUND)
-    target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES})
-endif()
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

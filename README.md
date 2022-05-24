@@ -14,4 +14,3 @@ crawler-cpp is a utility that recursively performs a GET request on specified UR
 #### Todo:
 * Export to XML
 * CLI choise of dfs or bfs
-* HTTPS support
